@@ -1,0 +1,5 @@
+node_modules
+.wwebjs_auth
+.wwebjs_cache
+node_modules/puppeteer-core/.local-chromium/win64-1045629/chrome-win/
+package-lock.json
