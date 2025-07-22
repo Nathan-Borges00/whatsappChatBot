@@ -1,4 +1,4 @@
-const { Client, LocalAuth } = require('whatsapp-web.js'); 
+const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
 const client = new Client({ authStrategy: new LocalAuth() });
@@ -178,7 +178,7 @@ async function handleIncomingMessage(message) {
 	}
 
 	// Opção inválida
-	await sendReply(message, 'Escolha uma opção: 1, 2, 3, 4, 5, 6 ou 7');
+	await sendReply(message, 'Escolha uma opção (1 à 7)');
 	startSessionTimeout(from, message);
 }
 
