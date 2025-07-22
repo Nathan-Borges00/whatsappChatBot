@@ -8,6 +8,7 @@ const WELCOME_DEBOUNCE = 10000;
 const pendingWelcomes = {};
 const activeSessions = {};
 const SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutos
+const sessionStatus = {}; // { [from]: 'active' | 'ended' | 'human' }
 
 const OPTIONS = ['1', '2', '3', '4', '5', '6', '7'];
 
@@ -130,6 +131,7 @@ function endSession(from, message, reason) {
 		clearTimeout(activeSessions[from]);
 		delete activeSessions[from];
 	}
+	sessionStatus[from] = 'ended';
 	if (reason === 'inactivity') {
 		message.reply('Sessão encerrada por inatividade. Até logo! 👋');
 	}
@@ -148,9 +150,16 @@ async function handleIncomingMessage(message) {
 	const nomeCliente = contact.pushname || contact.name || 'cliente';
 	const body = message.body.trim();
 
+	// Se sessão encerrada, não responde mais
+	if (sessionStatus[from] === 'ended') return;
+
+	// Se em atendimento humano, não responde mais
+	if (sessionStatus[from] === 'human') return;
+
 	// Boas-vindas na primeira mensagem
 	if (!informedClients.has(from)) {
 		informedClients.add(from);
+		sessionStatus[from] = 'active';
 		await sendReply(message, getWelcomeMessage(nomeCliente), WELCOME_DEBOUNCE);
 		startSessionTimeout(from, message);
 		return;
@@ -166,7 +175,7 @@ async function handleIncomingMessage(message) {
 	// Opção 6: Conversar com atendente
 	if (body === '6') {
 		await sendReply(message, MESSAGES[6]);
-		startSessionTimeout(from, message); // Continua monitorando inatividade após falar com atendente
+		sessionStatus[from] = 'human';
 		return;
 	}
 
